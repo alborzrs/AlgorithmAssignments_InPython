@@ -1,0 +1,31 @@
+#In this programming assignment you will implement one or more of the integer 
+#multiplication algorithms described in lecture. To get the most out of this 
+#assignment, your program should restrict itself to multiplying only pairs of 
+#single-digit numbers. You can implement the grade-school algorithm if you want,
+#but to get the most out of the assignment you'll want to implement recursive 
+#integer multiplication and/or Karatsuba's algorithm.
+#So: what's the product of the following two 64-digit numbers?
+#3141592653589793238462643383279502884197169399375105820974944592
+#2718281828459045235360287471352662497757247093699959574966967627
+import math
+def karatsuba(num1: int, num2: int) -> int:
+	if num1<10 or num2<10:	
+		return num1*num2
+	int_len = min (len(str(num1)),len(str(num2)))
+	ab_str = str(num1) #num1=a*10^(n/2)+b where n is the # of digits of num1
+	cd_str = str(num2) #num2=c*10^(n/2)+d where n is the # of digits of num2
+	a = int(ab_str[0:-math.ceil(int_len/2)])
+	b = int(ab_str[-math.ceil(int_len/2):])
+	c = int(cd_str[0:-math.ceil(int_len/2)])
+	d = int(cd_str[-math.ceil(int_len/2):])
+	ac = karatsuba(a,c) #recursively calculating a*c
+	bd = karatsuba(b,d) #recursively calculating b*d
+	a_plus_b_times_c_plus_d = karatsuba(a+b,c+d) #recursively calculating \
+	# (a+b) * (c+d)
+	#using Gauss' trick, (a+b) * (c+d) - a*c - b*d = a*d + b*c :
+	return (10**(math.ceil(int_len/2)*2))*ac+(10**(math.ceil(int_len/2))) \
+	*(a_plus_b_times_c_plus_d-ac-bd)+bd # num1.num2 = \
+	#(10^n)*a*c +(10^n/2)*(ad+bc)+ b*d 
+num1=3141592653589793238462643383279502884197169399375105820974944592
+num2=2718281828459045235360287471352662497757247093699959574966967627
+print (karatsuba(num1,num2))
