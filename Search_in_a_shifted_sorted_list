@@ -1,0 +1,92 @@
+import math
+def find_shift_point(lst: list) -> int: 
+	"""returns the idx for the smallest item in a shifted sorted list.
+	This function is an auxiliary function for the following function:
+	"search_shifted_sorted_array"
+
+    >>> find_shift_point([7,8,1])
+    2
+    >>> find_shift_point([7,8,9,10,2,3,4,5,6])
+    4
+	>>> find_shift_point([2,2,2,2,4,5,1])
+	6
+	>>> find_shift_point([2,2,2,2,2,2,2])
+	0
+    """
+	if len(lst)==1: #base case #1
+		return 0
+	if len(lst)==2: #base case #2
+		if lst[1]>=lst[0]:
+			return 0
+		else:
+			return 1 
+	midIdx=math.floor(len(lst)/2) #First, we look at the middle item of the lst
+	if lst[midIdx]<lst[midIdx-1] and lst[midIdx]<lst[midIdx+1]: # check if the\
+	# middle item is the minimum item and if so, return the index 
+		return midIdx
+	if lst[midIdx]<=lst[0] and lst[midIdx]<=lst[-1]:# in this case, the\
+	#smallest item is in the left side of the list
+		return find_shift_point(lst[0:midIdx+1])
+	elif lst[midIdx]>=lst[0] and lst[midIdx]>=lst[-1]:# in this case, the\
+	#smallest item is in the right side of the list
+		return midIdx+find_shift_point(lst[midIdx:])	
+	else:#otherwise, the list is already sorted and we return the first element
+		return 0
+
+def search_shifted_sorted_array(lst: list, srchItem: int) -> int:
+	"""search for srchItem in a shifted sorted list, "lst", and returns its \
+	index. The function returns -1 if srchItem is not in the input list. 
+
+	>>> search_shifted_sorted_array([9,7,8],9)
+	0
+	>>> search_shifted_sorted_array([7,8,9,10,2,3,4,5,6],5)
+	7
+	>>> search_shifted_sorted_array([7,8,9,10,12,3,4,5,6],11)
+	-1
+	>>> search_shifted_sorted_array([1,2,3,4,5,6,7],7)
+	6
+	>>> search_shifted_sorted_array([2,3,4,5,6,1],3)
+	1
+	>>> search_shifted_sorted_array([2,2,2,3,5,6,1],6)
+	5
+	"""
+	if len(lst)==1: #base case #1
+		if lst[0]==srchItem:
+			return 0
+		else:
+			return -1
+	if len(lst)==2: #base case #2
+		if lst[0]==srchItem:
+			return 0
+		if lst[1]==srchItem:
+			return 1
+		else:
+			return -1
+	shftPnt=find_shift_point(lst) #finding the shift point (smallest item) of\
+	#the input list
+	srtdLst=lst[shftPnt:]+lst[0:shftPnt] #shifting the input list and hence,\
+	#creating a sorted list. 
+	midIdx=math.floor(len(srtdLst)/2) #first, we check the middle item of \
+	#sorted list
+	if srtdLst[midIdx]==srchItem:
+		return midIdx
+	if srtdLst[midIdx]<srchItem: #in this case, srchItem can be found in the\
+	#right half of the sorted list (if it is in the list at all) 
+		if search_shifted_sorted_array(srtdLst[midIdx+1:], srchItem) == -1:
+			return -1 #if srchItem is not in the right half, return -1
+		else: # otherwise, using its index in the right half of the lst, find\
+		#the original index of srchItem
+			return (1+midIdx+search_shifted_sorted_array(srtdLst[midIdx+1:],\
+			srchItem)+shftPnt)%len(lst)
+	if srtdLst[midIdx]>srchItem: #in this case, srchItem can be found in the\
+	#left half of the sorted list (if it is in the list at all) 
+		if search_shifted_sorted_array(srtdLst[0:midIdx],srchItem) == -1:
+			return -1 #if srchItem is not in the left half, return -1
+		else:# otherwise, using its index in the left half of the lst, find\
+		#the original index of srchItem
+			return (search_shifted_sorted_array(srtdLst[0:midIdx], srchItem)+\
+			shftPnt)%len(lst)
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()	
